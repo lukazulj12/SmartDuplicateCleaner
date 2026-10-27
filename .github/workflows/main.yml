@@ -16,17 +16,23 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # Android SDK je već instaliran na GitHubovom serveru.
-
       - name: Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.11.1"
 
       - name: Testovi i izgradnja
         run: |
-          if [ -f SmartDuplicateCleaner/gradlew ]; then cd SmartDuplicateCleaner; fi
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          chmod +x gradlew
-          ./gradlew :core:test :app:testDebugUnitTest assembleDebug --stacktrace
+          echo "Sadržaj repozitorija:"
+          find . -maxdepth 3 -not -path './.git*' | sort | head -60
+          SETTINGS=$(find . -name settings.gradle.kts -not -path './.git/*' | head -1)
+          if [ -z "$SETTINGS" ]; then
+            echo "::error::U repozitoriju nije pronađena datoteka settings.gradle.kts – projekt nije uploadan."
+            exit 1
+          fi
+          cd "$(dirname "$SETTINGS")"
+          echo "Mapa projekta: $(pwd)"
+          gradle :core:test :app:testDebugUnitTest assembleDebug --stacktrace
 
       - name: Preuzimanje APK-a
         uses: actions/upload-artifact@v4

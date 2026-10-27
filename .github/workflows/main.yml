@@ -23,11 +23,14 @@ jobs:
 
       - name: Testovi i izgradnja
         run: |
-          echo "Sadržaj repozitorija:"
-          find . -maxdepth 3 -not -path './.git*' | sort | head -60
+          # Ako je uploadan zip, raspakiraj ga
+          if [ -z "$(find . -name settings.gradle.kts -not -path './.git/*')" ]; then
+            for z in $(find . -maxdepth 2 -name '*.zip'); do unzip -q -o "$z" -d .; done
+          fi
           SETTINGS=$(find . -name settings.gradle.kts -not -path './.git/*' | head -1)
           if [ -z "$SETTINGS" ]; then
-            echo "::error::U repozitoriju nije pronađena datoteka settings.gradle.kts – projekt nije uploadan."
+            echo "::error::Projekt nije pronađen."
+            find . -maxdepth 3 -not -path './.git*' | sort
             exit 1
           fi
           cd "$(dirname "$SETTINGS")"

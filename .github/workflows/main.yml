@@ -16,17 +16,15 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Android SDK
-        uses: android-actions/setup-android@v3
+      # Android SDK je već instaliran na GitHubovom serveru.
 
       - name: Gradle
         uses: gradle/actions/setup-gradle@v4
 
       - name: Testovi i izgradnja
         run: |
-          # Projekt može biti u korijenu ili u mapi SmartDuplicateCleaner
           if [ -f SmartDuplicateCleaner/gradlew ]; then cd SmartDuplicateCleaner; fi
-          ls
+          echo "ANDROID_HOME=$ANDROID_HOME"
           chmod +x gradlew
           ./gradlew :core:test :app:testDebugUnitTest assembleDebug --stacktrace
 
